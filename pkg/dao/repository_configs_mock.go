@@ -442,6 +442,41 @@ func (_m *MockRepositoryConfigDao) ListReposWithOutdatedSnapshots(ctx context.Co
 	return r0, r1
 }
 
+// ListUrls provides a mock function with given fields: ctx, orgID, paginationData, filterData
+func (_m *MockRepositoryConfigDao) ListUrls(ctx context.Context, orgID string, paginationData api.PaginationData, filterData api.FilterData) (api.RepositoryCollectionUrlResponse, int64, error) {
+	ret := _m.Called(ctx, orgID, paginationData, filterData)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListUrls")
+	}
+
+	var r0 api.RepositoryCollectionUrlResponse
+	var r1 int64
+	var r2 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, api.PaginationData, api.FilterData) (api.RepositoryCollectionUrlResponse, int64, error)); ok {
+		return rf(ctx, orgID, paginationData, filterData)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string, api.PaginationData, api.FilterData) api.RepositoryCollectionUrlResponse); ok {
+		r0 = rf(ctx, orgID, paginationData, filterData)
+	} else {
+		r0 = ret.Get(0).(api.RepositoryCollectionUrlResponse)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string, api.PaginationData, api.FilterData) int64); ok {
+		r1 = rf(ctx, orgID, paginationData, filterData)
+	} else {
+		r1 = ret.Get(1).(int64)
+	}
+
+	if rf, ok := ret.Get(2).(func(context.Context, string, api.PaginationData, api.FilterData) error); ok {
+		r2 = rf(ctx, orgID, paginationData, filterData)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
+}
+
 // SavePublicRepos provides a mock function with given fields: ctx, urls
 func (_m *MockRepositoryConfigDao) SavePublicRepos(ctx context.Context, urls []string) error {
 	ret := _m.Called(ctx, urls)

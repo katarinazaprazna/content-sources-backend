@@ -246,6 +246,44 @@ func (suite *ReposSuite) TestSimple() {
 	assert.Equal(t, collection.Data[0].LastSnapshot.UUID, response.Data[0].LastSnapshot.UUID)
 }
 
+func (suite *ReposSuite) TestListRepositoryUrls() {
+	t := suite.T()
+
+	// Create a collection with 10 repositories with only the URL field populated
+	collection := createRepoCollection(10, 10, 0)
+	repoUrls := make([]api.RepositoryUrlResponse, 0, len(collection.Data))
+	for _, repo := range collection.Data {
+		repoUrls = append(repoUrls, api.RepositoryUrlResponse{URL: repo.URL})
+	}
+
+	expected := api.RepositoryCollectionUrlResponse{Data: repoUrls}
+	paginationData := api.PaginationData{Limit: DefaultLimit, Offset: DefaultOffset}
+
+	// Configure the mock to expect a call to ListUrls with the correct parameters and return the collection
+	suite.reg.RepositoryConfig.WithContextMock().On("ListUrls", test.MockCtx(), test_handler.MockOrgId, paginationData, api.FilterData{}).Return(expected, int64(10), nil)
+
+	// Create a mock HTTP GET request to the /repositories/urls/ endpoint
+	req := httptest.NewRequest(http.MethodGet, api.FullRootPath()+"/repositories/urls/", nil)
+	req.Header.Set(api.IdentityHeader, test_handler.EncodedIdentity(t))
+
+	// Invoke the API handler with the mock request
+	code, body, err := suite.serveRepositoriesRouter(req)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusOK, code)
+
+	response := api.RepositoryCollectionUrlResponse{}
+	err = json.Unmarshal(body, &response)
+	assert.NoError(t, err)
+	assert.Equal(t, DefaultOffset, response.Meta.Offset)
+	assert.Equal(t, DefaultLimit, response.Meta.Limit)
+	assert.Equal(t, int64(10), response.Meta.Count)
+	assert.Equal(t, 10, len(response.Data))
+
+	for i := 0; i < len(response.Data); i++ {
+		assert.Equal(t, expected.Data[i].URL, response.Data[i].URL)
+	}
+}
+
 func (suite *ReposSuite) TestListNoRepositories() {
 	t := suite.T()
 

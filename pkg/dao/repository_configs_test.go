@@ -1219,6 +1219,65 @@ func (suite *RepositoryConfigSuite) TestInternalOnly_FetchRepoConfigsForRepoUUID
 	assert.NotEmpty(t, results[0].Name)
 }
 
+func (suite *RepositoryConfigSuite) TestListUrls() {
+	// Get the testing context which our testing framework needs
+	t := suite.T()
+
+	// Create variables needed for the test (the expected result)
+	var repoConfig api.RepositoryUrlResponse // Only containing the URL field
+	var total int64
+
+	orgID := seeds.RandomOrgId()
+	pageData := api.PaginationData{
+		Limit:  100,
+		Offset: 0,
+	}
+	filterData := api.FilterData{
+		Search:  "",
+		Arch:    "",
+		Version: "",
+		Origin:  originCustom,
+	}
+	var err error
+
+	// Populate the database with a known number of records
+	_, err = seeds.SeedRepositoryConfigurations(suite.tx, 1, seeds.SeedOptions{OrgID: orgID})
+	assert.NoError(t, err)
+
+	// Get the total count of seeded records
+	countTx := suite.tx.
+		Model(models.RepositoryConfiguration{}).
+		Where("org_id = ?", orgID).
+		Joins("inner join repositories on repository_configurations.repository_uuid = repositories.uuid").
+		Count(&total)
+	assert.NoError(t, countTx.Error)
+	assert.Equal(t, int64(1), total)
+
+	// Get the records which match the filter criteria
+	dataTx := suite.tx.
+		Model(&models.RepositoryConfiguration{}).
+		Select("repositories.url").
+		Joins("inner join repositories on repository_configurations.repository_uuid = repositories.uuid").
+		Where("org_id = ?", orgID).
+		Scan(&repoConfig)
+	assert.NoError(t, dataTx.Error)
+
+	// Create the DAO layer to be tested
+	rDao := repositoryConfigDaoImpl{db: suite.tx, pulpClient: suite.mockPulpClient, fsClient: suite.mockFsClient}
+
+	// Mock the features the org has access to
+	suite.mockFsClient.Mock.On("GetEntitledFeatures", context.Background(), orgID).Return([]string{}, nil)
+
+	// Call the DAO method to be tested
+	response, total, err := rDao.ListUrls(context.Background(), orgID, pageData, filterData)
+	assert.NoError(t, err)
+	assert.Equal(t, int64(1), total)
+	assert.Equal(t, 1, len(response.Data))
+	if len(response.Data) > 0 {
+		assert.Equal(t, repoConfig.URL, response.Data[0].URL)
+	}
+}
+
 func (suite *RepositoryConfigSuite) TestList() {
 	t := suite.T()
 	repoConfig := models.RepositoryConfiguration{}

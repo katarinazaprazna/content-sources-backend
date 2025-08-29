@@ -39,6 +39,13 @@ type RepositoryResponse struct {
 	FeatureName                  string            `json:"feature_name,omitempty"`              // The feature name this repo requires
 }
 
+// RepositoryUrlResponse represents a single repository URL in API responses.
+// This type is used when only the URL information is needed, providing
+// a lightweight alternative to the full RepositoryResponse.
+type RepositoryUrlResponse struct {
+	URL string `json:"url"` // The URL of the repository
+}
+
 // RepositoryRequest holds data received from request to create repository
 type RepositoryRequest struct {
 	UUID                 *string   `json:"uuid" readonly:"true" swaggerignore:"true"`
@@ -176,6 +183,23 @@ type RepositoryCollectionResponse struct {
 	Data  []RepositoryResponse `json:"data"`  // Requested Data
 	Meta  ResponseMetadata     `json:"meta"`  // Metadata about the request
 	Links Links                `json:"links"` // Links to other pages of results
+}
+
+// RepositoryCollectionUrlResponse represents a paginated collection of repository URLs.
+// This response type is used by the ListUrls endpoint to return a lightweight list
+// of repository URLs with pagination metadata and navigation links.
+type RepositoryCollectionUrlResponse struct {
+	Data  []RepositoryUrlResponse `json:"data"`  // Requested Data
+	Meta  ResponseMetadata        `json:"meta"`  // Metadata about the request
+	Links Links                   `json:"links"` // Links to other pages of results
+}
+
+// SetMetadata sets the metadata and links for the collection response.
+// This method is used to populate pagination information and navigation links
+// before returning the response to the client.
+func (r *RepositoryCollectionUrlResponse) SetMetadata(meta ResponseMetadata, links Links) {
+	r.Meta = meta
+	r.Links = links
 }
 
 func (r *RepositoryCollectionResponse) SetMetadata(meta ResponseMetadata, links Links) {

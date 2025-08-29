@@ -68,6 +68,7 @@ func RegisterRepositoryRoutes(engine *echo.Group, daoReg *dao.DaoRegistry,
 	addRepoRoute(engine, http.MethodGet, "/repository_gpg_key/:uuid", rh.getGpgKeyFile, rbac.RbacVerbRead)
 	addRepoRoute(engine, http.MethodPost, "/repositories/bulk_export/", rh.bulkExportRepositories, rbac.RbacVerbRead)
 	addRepoRoute(engine, http.MethodPost, "/repositories/bulk_import/", rh.bulkImportRepositories, rbac.RbacVerbWrite)
+	addRepoRoute(engine, http.MethodGet, "/repositories/urls/", rh.listRepositoryUrls, rbac.RbacVerbRead)
 }
 
 func getAccountIdOrgId(c echo.Context) (string, string) {
@@ -114,6 +115,42 @@ func (rh *RepositoryHandler) listRepositories(c echo.Context) error {
 	}
 
 	return c.JSON(200, setCollectionResponseMetadata(&repos, c, totalRepos))
+}
+
+// ListRepositoryUrls godoc
+// @Summary      List Repository URLs
+// @ID           listRepositoryUrls
+// @Description  This operation retrieves a paginated list of repository URLs for the given organization. It supports filtering by various criteria and pagination for efficient data retrieval.
+// @Tags         repositories
+// @Accept       json
+// @Produce      json
+// @Param        limit              query    int     false  "Maximum number of URLs to return (pagination)"
+// @Param        offset             query    int     false  "Number of URLs to skip (pagination)"
+// @Param        sort_by            query    string  false  "Field to sort by (e.g., name, url)"
+// @Param        name               query    string  false  "Filter by repository name"
+// @Param        url                query    string  false  "Filter by repository URL"
+// @Param        content_type       query    string  false  "Filter by content type"
+// @Param        uuid               query    string  false  "Filter by repository UUID"
+// @Param        available_for_arch query    string  false  "Filter by supported architecture"
+// @Param        available_for_version query  string  false  "Filter by supported version"
+// @Success      200  {object}  api.RepositoryCollectionUrlResponse
+// @Failure      400 {object} ce.ErrorResponse
+// @Failure      401 {object} ce.ErrorResponse
+// @Failure      403 {object} ce.ErrorResponse
+// @Failure      500 {object} ce.ErrorResponse
+// @Router       /repositories/urls/ [get]
+func (rh *RepositoryHandler) listRepositoryUrls(c echo.Context) error {
+	_, orgID := getAccountIdOrgId(c)
+	pageData := ParsePagination(c)
+	filterData := ParseFilters(c)
+
+	filteredRepos, totalFilteredRepos, err := rh.DaoRegistry.RepositoryConfig.ListUrls(c.Request().Context(), orgID, pageData, filterData)
+
+	if err != nil {
+		return ce.NewErrorResponse(ce.HttpCodeForDaoError(err), "Error listing repository URLs", err.Error())
+	}
+
+	return c.JSON(200, setCollectionResponseMetadata(&filteredRepos, c, totalFilteredRepos))
 }
 
 // CreateRepository godoc

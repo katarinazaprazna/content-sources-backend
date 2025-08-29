@@ -377,6 +377,39 @@ func (r repositoryConfigDaoImpl) ListReposWithOutdatedSnapshots(ctx context.Cont
 	return dbRepos, nil
 }
 
+func (r repositoryConfigDaoImpl) ListUrls(ctx context.Context, OrgID string, pageData api.PaginationData, filterData api.FilterData) (api.RepositoryCollectionUrlResponse, int64, error) {
+	var filteredRepos []api.RepositoryUrlResponse
+	var totalFilteredRepos int64
+
+	accessibleFeatures, err := r.fsClient.GetEntitledFeatures(ctx, OrgID)
+	if err != nil {
+		return api.RepositoryCollectionUrlResponse{}, totalFilteredRepos, err
+	}
+
+	filteredDB, err := r.filteredDbForList(OrgID, r.db.WithContext(ctx), filterData, accessibleFeatures)
+	if err != nil {
+		return api.RepositoryCollectionUrlResponse{}, totalFilteredRepos, err
+	}
+
+	// Get total count
+	err = filteredDB.Model(&models.RepositoryConfiguration{}).Count(&totalFilteredRepos).Error
+	if err != nil {
+		return api.RepositoryCollectionUrlResponse{}, totalFilteredRepos, err
+	}
+
+	// Get data with limit and offset
+	err = filteredDB.Model(&models.RepositoryConfiguration{}).
+		Select("repositories.url").
+		Limit(pageData.Limit).
+		Offset(pageData.Offset).
+		Scan(&filteredRepos).Error
+	if err != nil {
+		return api.RepositoryCollectionUrlResponse{}, totalFilteredRepos, err
+	}
+
+	return api.RepositoryCollectionUrlResponse{Data: filteredRepos}, totalFilteredRepos, nil
+}
+
 func (r repositoryConfigDaoImpl) List(
 	ctx context.Context,
 	OrgID string,
