@@ -31,6 +31,7 @@ models/ApiPopularRepositoryResponse.ts
 models/ApiPublicRepositoryCollectionResponse.ts
 models/ApiPublicRepositoryResponse.ts
 models/ApiRepositoryCollectionResponse.ts
+models/ApiRepositoryCollectionUrlResponse.ts
 models/ApiRepositoryEnvironment.ts
 models/ApiRepositoryEnvironmentCollectionResponse.ts
 models/ApiRepositoryExportRequest.ts
@@ -45,6 +46,7 @@ models/ApiRepositoryResponse.ts
 models/ApiRepositoryRpm.ts
 models/ApiRepositoryRpmCollectionResponse.ts
 models/ApiRepositoryUpdateRequest.ts
+models/ApiRepositoryUrlResponse.ts
 models/ApiRepositoryValidationRequest.ts
 models/ApiRepositoryValidationResponse.ts
 models/ApiResponseMetadata.ts

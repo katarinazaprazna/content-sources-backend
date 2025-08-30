@@ -18,6 +18,7 @@ import type {
   ApiAddUploadsRequest,
   ApiCreateUploadRequest,
   ApiRepositoryCollectionResponse,
+  ApiRepositoryCollectionUrlResponse,
   ApiRepositoryExportRequest,
   ApiRepositoryExportResponse,
   ApiRepositoryImportResponse,
@@ -40,6 +41,8 @@ import {
     ApiCreateUploadRequestToJSON,
     ApiRepositoryCollectionResponseFromJSON,
     ApiRepositoryCollectionResponseToJSON,
+    ApiRepositoryCollectionUrlResponseFromJSON,
+    ApiRepositoryCollectionUrlResponseToJSON,
     ApiRepositoryExportRequestFromJSON,
     ApiRepositoryExportRequestToJSON,
     ApiRepositoryExportResponseFromJSON,
@@ -148,6 +151,18 @@ export interface ListRepositoriesRequest {
     status?: string;
     origin?: string;
     contentType?: string;
+}
+
+export interface ListRepositoryUrlsRequest {
+    limit?: number;
+    offset?: number;
+    sortBy?: string;
+    name?: string;
+    url?: string;
+    contentType?: string;
+    uuid?: string;
+    availableForArch?: string;
+    availableForVersion?: string;
 }
 
 export interface PartialUpdateRepositoryRequest {
@@ -912,6 +927,73 @@ export class RepositoriesApi extends runtime.BaseAPI {
      */
     async listRepositoryParameters(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ApiRepositoryParameterResponse> {
         const response = await this.listRepositoryParametersRaw(initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * This operation retrieves a paginated list of repository URLs for the given organization. It supports filtering by various criteria and pagination for efficient data retrieval.
+     * List Repository URLs
+     */
+    async listRepositoryUrlsRaw(requestParameters: ListRepositoryUrlsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ApiRepositoryCollectionUrlResponse>> {
+        const queryParameters: any = {};
+
+        if (requestParameters['limit'] != null) {
+            queryParameters['limit'] = requestParameters['limit'];
+        }
+
+        if (requestParameters['offset'] != null) {
+            queryParameters['offset'] = requestParameters['offset'];
+        }
+
+        if (requestParameters['sortBy'] != null) {
+            queryParameters['sort_by'] = requestParameters['sortBy'];
+        }
+
+        if (requestParameters['name'] != null) {
+            queryParameters['name'] = requestParameters['name'];
+        }
+
+        if (requestParameters['url'] != null) {
+            queryParameters['url'] = requestParameters['url'];
+        }
+
+        if (requestParameters['contentType'] != null) {
+            queryParameters['content_type'] = requestParameters['contentType'];
+        }
+
+        if (requestParameters['uuid'] != null) {
+            queryParameters['uuid'] = requestParameters['uuid'];
+        }
+
+        if (requestParameters['availableForArch'] != null) {
+            queryParameters['available_for_arch'] = requestParameters['availableForArch'];
+        }
+
+        if (requestParameters['availableForVersion'] != null) {
+            queryParameters['available_for_version'] = requestParameters['availableForVersion'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+
+        let urlPath = `/repositories/urls/`;
+
+        const response = await this.request({
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => ApiRepositoryCollectionUrlResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * This operation retrieves a paginated list of repository URLs for the given organization. It supports filtering by various criteria and pagination for efficient data retrieval.
+     * List Repository URLs
+     */
+    async listRepositoryUrls(requestParameters: ListRepositoryUrlsRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ApiRepositoryCollectionUrlResponse> {
+        const response = await this.listRepositoryUrlsRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

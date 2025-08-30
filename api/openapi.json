@@ -431,6 +431,24 @@
                 },
                 "type": "object"
             },
+            "api.RepositoryCollectionUrlResponse": {
+                "properties": {
+                    "data": {
+                        "description": "Requested Data",
+                        "items": {
+                            "$ref": "#/components/schemas/api.RepositoryUrlResponse"
+                        },
+                        "type": "array"
+                    },
+                    "links": {
+                        "$ref": "#/components/schemas/api.Links"
+                    },
+                    "meta": {
+                        "$ref": "#/components/schemas/api.ResponseMetadata"
+                    }
+                },
+                "type": "object"
+            },
             "api.RepositoryEnvironment": {
                 "properties": {
                     "description": {
@@ -1023,6 +1041,15 @@
                     },
                     "url": {
                         "description": "URL of the remote yum repository",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "api.RepositoryUrlResponse": {
+                "properties": {
+                    "url": {
+                        "description": "The URL of the repository",
                         "type": "string"
                     }
                 },
@@ -3157,6 +3184,142 @@
                     }
                 },
                 "summary": "Upload a file chunk",
+                "tags": [
+                    "repositories"
+                ]
+            }
+        },
+        "/repositories/urls/": {
+            "get": {
+                "description": "This operation retrieves a paginated list of repository URLs for the given organization. It supports filtering by various criteria and pagination for efficient data retrieval.",
+                "operationId": "listRepositoryUrls",
+                "parameters": [
+                    {
+                        "description": "Maximum number of URLs to return (pagination)",
+                        "in": "query",
+                        "name": "limit",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "description": "Number of URLs to skip (pagination)",
+                        "in": "query",
+                        "name": "offset",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "description": "Field to sort by (e.g., name, url)",
+                        "in": "query",
+                        "name": "sort_by",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "description": "Filter by repository name",
+                        "in": "query",
+                        "name": "name",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "description": "Filter by repository URL",
+                        "in": "query",
+                        "name": "url",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "description": "Filter by content type",
+                        "in": "query",
+                        "name": "content_type",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "description": "Filter by repository UUID",
+                        "in": "query",
+                        "name": "uuid",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "description": "Filter by supported architecture",
+                        "in": "query",
+                        "name": "available_for_arch",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "description": "Filter by supported version",
+                        "in": "query",
+                        "name": "available_for_version",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/api.RepositoryCollectionUrlResponse"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/errors.ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/errors.ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/errors.ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Forbidden"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/errors.ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Internal Server Error"
+                    }
+                },
+                "summary": "List Repository URLs",
                 "tags": [
                     "repositories"
                 ]

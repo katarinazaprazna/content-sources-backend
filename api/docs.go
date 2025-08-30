@@ -987,6 +987,110 @@ const docTemplate = `{
                 }
             }
         },
+        "/repositories/urls/": {
+            "get": {
+                "description": "This operation retrieves a paginated list of repository URLs for the given organization. It supports filtering by various criteria and pagination for efficient data retrieval.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "repositories"
+                ],
+                "summary": "List Repository URLs",
+                "operationId": "listRepositoryUrls",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Maximum number of URLs to return (pagination)",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Number of URLs to skip (pagination)",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Field to sort by (e.g., name, url)",
+                        "name": "sort_by",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by repository name",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by repository URL",
+                        "name": "url",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by content type",
+                        "name": "content_type",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by repository UUID",
+                        "name": "uuid",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by supported architecture",
+                        "name": "available_for_arch",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by supported version",
+                        "name": "available_for_version",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.RepositoryCollectionUrlResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/errors.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/errors.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/errors.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errors.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/repositories/{repo_uuid}/snapshots/bulk_delete/": {
             "post": {
                 "description": "This enables deleting specified snapshots from a repository.",
@@ -4103,6 +4207,26 @@ const docTemplate = `{
                 }
             }
         },
+        "api.RepositoryCollectionUrlResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "Requested Data",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/api.RepositoryUrlResponse"
+                    }
+                },
+                "links": {
+                    "description": "Links to other pages of results",
+                    "$ref": "#/definitions/api.Links"
+                },
+                "meta": {
+                    "description": "Metadata about the request",
+                    "$ref": "#/definitions/api.ResponseMetadata"
+                }
+            }
+        },
         "api.RepositoryEnvironment": {
             "type": "object",
             "properties": {
@@ -4706,6 +4830,15 @@ const docTemplate = `{
                 },
                 "url": {
                     "description": "URL of the remote yum repository",
+                    "type": "string"
+                }
+            }
+        },
+        "api.RepositoryUrlResponse": {
+            "type": "object",
+            "properties": {
+                "url": {
+                    "description": "The URL of the repository",
                     "type": "string"
                 }
             }
